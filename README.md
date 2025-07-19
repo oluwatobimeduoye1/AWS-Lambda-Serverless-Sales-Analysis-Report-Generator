@@ -7,7 +7,7 @@ This project demonstrates the deployment and configuration of an AWS Lambda-base
 
 - AWS Systems Manager Parameter Store — Securely stores and manages database connection parameters.
 
-- Amazon Simple Notification Service (SES) — Sends the sales analysis report via email.
+- Amazon Simple Notification Service (SNS) — Sends the sales analysis report via email.
 
 
 #### The following diagram shows the architecture of the sales analysis report solution and illustrates the order in which actions occur.
