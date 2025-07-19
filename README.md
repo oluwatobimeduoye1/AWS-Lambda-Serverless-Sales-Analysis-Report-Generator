@@ -378,5 +378,3 @@ This project demonstrates a real-world serverless reporting solution for automat
 
 
 
-## Author
- - Oluwatobi Meduoye 
