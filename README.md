@@ -283,5 +283,97 @@ Next, we create and configure the salesAnalysisReport Lambda function. This func
 
 - Formats and publishes a message containing the report data to the SNS topic
 
+#### create function through ec2 instance CLI
 
-  
+  <img width="669" height="440" alt="Screenshot 2025-07-19 032144" src="https://github.com/user-attachments/assets/226d5c6e-96ce-4887-bbfb-dd708faad61d" />
+
+Next, you use the Lambda create-function command to create the Lambda function and configure it to use the salesAnalysisReportRole IAM role
+
+```
+aws lambda create-function \
+  --function-name salesAnalysisReport \
+  --runtime python3.9 \
+  --zip-file fileb://salesAnalysisReport-v2.zip \
+  --handler salesAnalysisReport.lambda_handler \
+  --region us-west-2 \
+  --role arn:aws:iam::803020999895:role/salesAnalysisReportRole
+```
+<img width="659" height="475" alt="Screenshot 2025-07-19 032919" src="https://github.com/user-attachments/assets/015dd75e-78bb-43a6-8c82-d2da1320e544" />
+
+Once the command completes, it returns a JSON object describing the attributes of the function. You now complete its configuration and unit test it.
+
+#### Next, Configure the salesAnalysisReport Lambda function
+
+- Open the Lambda management console.
+
+- Choose Functions, and then choose salesAnalysisReport
+- Choose the Configuration tab, and choose Environment variables.
+
+<img width="661" height="482" alt="Screenshot 2025-07-19 033634" src="https://github.com/user-attachments/assets/7925f235-1a4d-42e3-b281-a26208297713" />
+
+- Choose Edit.
+
+- Choose Add environment variable, and configure the following options:
+
+Key: Enter topicARN
+
+Value: Paste the ARN value of the salesAnalysisReportTopic SNS topic 
+
+Choose Save.
+
+# Testing the salesAnalysisReport Lambda function
+
+ Test tab, and configure the test event ,A green box with the message “Execution result: succeeded (logs)” appears.
+<img width="678" height="525" alt="Screenshot 2025-07-19 034250" src="https://github.com/user-attachments/assets/1169f2cc-c3db-4bd6-bc50-9cb01423fa27" />
+
+An email from AWS Notifications with the subject "Daily Sales Analysis Report." will be automatical sent to the subscribed email with details of orders placed on the cafe website 
+<img width="1009" height="372" alt="Screenshot 2025-07-19 034520" src="https://github.com/user-attachments/assets/837d634b-0b8c-40c1-818f-e41a4d5efae6" />
+
+#### Adding a trigger to the salesAnalysisReport Lambda function
+
+To complete the implementation of the salesAnalysisReport function, configure the report to be initiated Monday through Saturday at 8 PM each day. To do so, use a CloudWatch Events event as the trigger mechanism
+Function overview panel, choose Add trigger. The Add trigger panel is displayed.
+
+In the Add trigger panel, configure the following options:
+
+In the Trigger configuration pane, from the dropdown list, choose EventBridge (CloudWatch Events).
+
+For Rule, choose Create a new rule. 
+
+For Rule name, enter salesAnalysisReportDailyTrigger
+
+For Rule description, enter Initiates report generation on a daily basis
+
+For Rule type, choose Schedule expression.
+
+For Schedule expression
+
+<img width="1347" height="518" alt="Screenshot 2025-07-19 035706" src="https://github.com/user-attachments/assets/badca315-a802-4d4e-8217-003856e5b578" />
+<img width="673" height="506" alt="Screenshot 2025-07-19 035742" src="https://github.com/user-attachments/assets/78894982-b4c3-4ff2-8881-1cfea7aed8f5" />
+
+# Use Case and Benefits
+This project demonstrates a real-world serverless reporting solution for automating daily business insights using AWS services. It simulates a café's sales reporting system, where data is extracted from a MySQL database, processed, and emailed to stakeholders without manual intervention.
+
+### Use Case:
+- Automated Daily Reporting — Automatically generate and distribute daily sales analysis reports based on live transactional data.
+
+- Serverless Architecture — Leverages AWS Lambda, eliminating the need for dedicated servers or manual scheduling scripts.
+
+- Secure Data Access — Uses AWS Systems Manager Parameter Store for secure, managed storage of database credentials.
+
+- Event-Driven Integration — Connects AWS services (Lambda, EC2, SNS, CloudWatch) in a seamless, event-triggered workflow.
+
+- Scalable and Maintainable — Modular Lambda functions with shared layers promote reuse and easy maintenance.
+
+### Business Benefits:
+- Operational Efficiency — Reduces manual reporting tasks, saving time and improving consistency.
+
+- Cost-Effective — Pay-as-you-go serverless model ensures cost control without provisioning unnecessary infrastructure.
+
+- Improved Visibility — Timely reports help business managers make informed decisions based on up-to-date sales data.
+
+- Enhanced Security — Centralized credential management and fine-grained IAM roles ensure compliance and data protection.
+
+- Flexibility — Easily adaptable for other reporting, monitoring, or notification use cases across different business domains.
+
+
