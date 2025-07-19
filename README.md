@@ -377,3 +377,6 @@ This project demonstrates a real-world serverless reporting solution for automat
 - Flexibility — Easily adaptable for other reporting, monitoring, or notification use cases across different business domains.
 
 
+
+## Author
+ - Oluwatobi Meduoye 
