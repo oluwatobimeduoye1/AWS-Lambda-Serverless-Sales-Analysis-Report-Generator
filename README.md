@@ -150,5 +150,138 @@ Choose Save.
 
 <img width="1365" height="541" alt="Screenshot 2025-07-19 002848" src="https://github.com/user-attachments/assets/485f6006-cba4-41ee-a635-852981bac0ad" />
 
+#### Configuring network settings for the function
+The final step before testing the function is to configure its network settings. As the architecture diagram at the start of this project shows, this function requires network access to the café database, which runs in an EC2 LAMP instance. Therefore, you need to specify the instance’s VPC, subnet, and security group information in the function’s configuration.
+- Choose the Configuration tab, and then choose VPC.
+
+####### Choose Edit, and configure the following options:
+
+i. VPC: Choose the option with Cafe VPC as the Name.
+
+ii Subnets: Choose the option with Cafe Public Subnet 1 as the Name.
+iii. Security groups: Choose the option with CafeSecurityGroup as the Name.
+
+<img width="1366" height="539" alt="Screenshot 2025-07-19 011234" src="https://github.com/user-attachments/assets/51db505a-a30d-48a0-947d-d2974fe46d48" /> <img width="1366" height="543" alt="Screenshot 2025-07-19 011415" src="https://github.com/user-attachments/assets/1962bbc6-e5f9-43bb-8019-1289c98c99f1" />
 
 
+# Testing the data extractor Lambda function
+We are now ready to test the salesAnalysisReportDataExtractor function. To invoke it, we need to supply values for the café database connection parameters. Recall that these are stored in Parameter Store.
+
+- On a new browser tab, open the AWS Management Console, and choose Services > Management & Governance > Systems Manager.
+
+- In the navigation pane, choose Parameter Store.
+<img width="1364" height="541" alt="Screenshot 2025-07-19 013616" src="https://github.com/user-attachments/assets/b538e9b0-a03a-4ce3-9385-701034c4bfd6" />
+
+
+- Choose each of the following parameter names, and copy and paste the Value of each one into a text editor document:
+
+/cafe/dbUrl
+
+/cafe/dbName
+
+/cafe/dbUser
+
+/cafe/dbPassword
+
+- Return to the Lambda Management Console browser tab. On the salesAnalysisReportDataExtractor function page, choose the Test tab.
+
+- Configure the Test event panel as follows:
+
+For Test event action, select Create new event.
+
+For Event name, enter SARDETestEvent
+
+For Template, choose hello-world.
+
+- In the Event JSON pane, replace the JSON object with the following JSON object:
+
+```
+{
+  "dbUrl": "<value of /cafe/dbUrl parameter>",
+  "dbName": "<value of /cafe/dbName parameter>",
+  "dbUser": "<value of /cafe/dbUser parameter>",
+  "dbPassword": "<value of /cafe/dbPassword parameter>"
+}
+```
+<img width="1366" height="454" alt="Screenshot 2025-07-19 020028" src="https://github.com/user-attachments/assets/87af1824-bcfc-4b12-8eb6-ba40cf3914c8" />
+
+In this code, substitute the value of each parameter with the values that you pasted into a text editor in the previous steps. Enclose these values in quotation marks.
+
+Choose Save.
+
+Choose Test.
+<img width="1360" height="523" alt="Screenshot 2025-07-19 014509" src="https://github.com/user-attachments/assets/de2876ca-6ed9-45fa-ae58-e1ae6cb7839b" />
+
+
+After a few moments, the page shows the message "Execution result: failed". 
+
+
+
+#### Troubleshooting the data extractor Lambda function
+In the Execution result pane, choose Details shows:
+
+<img width="633" height="126" alt="Screenshot 2025-07-19 020922" src="https://github.com/user-attachments/assets/ae25f3d3-f6eb-49cf-a934-fbc01316ff97" />
+
+This message indicates that the function timed out after 3 seconds.
+
+The Log output section includes lines starting with the following keywords:
+
+- START indicates that the function started running.
+- END indicates that the function finished running.
+- REPORT provides a summary of the performance and resource utilization statistics related to when the function ran.
+
+#### Analyzing and correcting the Lambda function
+Here are a few hints to help you find the solution:
+
+- One of the first things that this function does is connect to the MySQL database running in a separate EC2 instance. It waits a certain amount of time to establish a successful connection. After this time passes, if the connection is unsuccessful, the function times out.
+
+- By default, a MySQL database uses the MySQL protocol and listens on port number 3306 for client access. However port wasn't configured in security group
+<img width="1363" height="454" alt="Screenshot 2025-07-19 021958" src="https://github.com/user-attachments/assets/165f46ac-5a3b-41c1-9fdf-aa1e9fea0a9f" />
+Once you have corrected the problem, test was re-run and successful
+<img width="1361" height="466" alt="Screenshot 2025-07-19 022107" src="https://github.com/user-attachments/assets/f8ab1f76-b44c-41b8-b167-bec6e33c5e3b" /> <img width="1366" height="542" alt="Screenshot 2025-07-19 022135" src="https://github.com/user-attachments/assets/3d80d405-e875-4487-90f7-40a6fd8af4ee" /> <img width="1364" height="519" alt="Screenshot 2025-07-19 022753" src="https://github.com/user-attachments/assets/db5cb4fc-cc98-477e-b215-84908745b99f" />
+# Placing an order and testing again
+open cafe website and make order to test the website 
+<img width="1354" height="694" alt="Screenshot 2025-07-19 024058" src="https://github.com/user-attachments/assets/fb5ddf13-9a37-44ad-a03b-b2d210eb334d" />
+
+<img width="1314" height="704" alt="Screenshot 2025-07-19 024617" src="https://github.com/user-attachments/assets/0de42d2d-41a5-465f-bc09-f6750cc88647" /> <img width="1293" height="496" alt="Screenshot 2025-07-19 024701" src="https://github.com/user-attachments/assets/8800a453-1ca1-4cbf-87ba-b09a5cda65fc" />
+
+salesAnalysisReportDataExtractor function page and run a test
+The returned JSON object now contains product quantity information in the body field similar to the order made on the website. confirming the salesAnalysisReportDataExtractor Lambda function !!!
+
+<img width="656" height="516" alt="Screenshot 2025-07-19 025006" src="https://github.com/user-attachments/assets/1eabf1ca-61ae-476e-ae0a-ca8ec88862db" />
+
+# Configuring notifications
+- Create an SNS topic
+    Protocol: Choose Email.
+
+Endpoint: Enter an email address that you can access.
+
+<img width="653" height="490" alt="Screenshot 2025-07-19 030019" src="https://github.com/user-attachments/assets/46baf9cf-a1ee-4da0-b843-06391e4fb0bf" />
+
+- Choose Create subscription.
+
+The subscription is created and has a Status of Pending confirmation.
+
+Check the inbox for the email address that you provided.
+
+<img width="669" height="279" alt="Screenshot 2025-07-19 030221" src="https://github.com/user-attachments/assets/6ff0260a-f630-405d-a565-dd1796ad2ecf" />
+
+You should see an email from SARTopic with the subject "AWS Notification - Subscription Confirmation."
+
+Open the email, and choose Confirm subscription.
+
+- A new browser tab opens and displays a page with the message "Subscription confirmed!"
+<img width="670" height="525" alt="Screenshot 2025-07-19 030435" src="https://github.com/user-attachments/assets/e5fbfce8-5ad1-40a2-beb1-a6cd3abdc3da" />
+
+# Creating the salesAnalysisReport Lambda function
+
+Next, we create and configure the salesAnalysisReport Lambda function. This function is the main driver of the sales analysis report flow. It does the following:
+
+- Retrieves the database connection information from Parameter Store
+
+- Invokes the salesAnalysisReportDataExtractor Lambda function, which retrieves the report data from the database
+
+- Formats and publishes a message containing the report data to the SNS topic
+
+
+  
